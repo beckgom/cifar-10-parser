@@ -32,7 +32,7 @@ def convert_image_from_pack(filename, path, meta, logfile):
         label = raw_data['labels'][i]
         filepath = path + "/" + str(label) + "/" + raw_data['filenames'][i]
         saveImage(image_format, "RGB", (32, 32), filepath)
-        logfile.write(filepath + "\t" + meta['label_names'][label] + "\n")
+        logfile.write(filepath + "\t" + str(label) + "\n")
     
 
 def save_label_file(filename):
