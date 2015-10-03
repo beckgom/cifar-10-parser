@@ -33,7 +33,7 @@ def convert_image_from_pack(filename, path, meta, logfile):
         filepath = path + "/" + str(label) + "/" + raw_data['filenames'][i]
         saveImage(image_format, "RGB", (32, 32), filepath)
         logfile.write(filepath + "\t" + str(label) + "\n")
-    
+
 
 def save_label_file(filename):
     meta = unpickle(filename)
