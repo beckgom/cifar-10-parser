@@ -15,8 +15,9 @@ def unpickle(file):
     fo.close()
     return dict
 
+counter = dict()
 
-def convert_image_from_pack(filename, path, meta, logfile):
+def convert_image_from_pack(filename, path, meta, logfile, n_sample):
     raw_data = unpickle(filename)
 
     def get_image_format(data):
@@ -28,11 +29,16 @@ def convert_image_from_pack(filename, path, meta, logfile):
         new_img.save(filename)
 
     for i in xrange(len(raw_data['data'])):
-        image_format = get_image_format(raw_data['data'][i])
         label = raw_data['labels'][i]
-        filepath = path + "/" + str(label) + "/" + raw_data['filenames'][i]
-        saveImage(image_format, "RGB", (32, 32), filepath)
-        logfile.write(filepath + "\t" + str(label) + "\n")
+        if label in counter.keys():
+            counter[label] += 1
+        else:
+            counter[label] = 1
+        if n_sample == 0 or counter[label] <= n_sample:
+            image_format = get_image_format(raw_data['data'][i])
+            filepath = path + "/" + str(label) + "/" + raw_data['filenames'][i]
+            saveImage(image_format, "RGB", (32, 32), filepath)
+            logfile.write(filepath + "\t" + str(label) + "\n")
 
 
 def save_label_file(filename):
@@ -53,14 +59,14 @@ def make_dir(meta, db_type):
     os.chdir("..")
 
 
-def convert_DB(meta, db_type):
+def convert_DB(meta, db_type, n_sample):
     train_file_list = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
     test_file_list = ['test_batch']
     file_list = {"train": train_file_list, "test":test_file_list}
     db_log = db_type + ".txt"
     f = open(db_log, "w")
     for filename in file_list[db_type]:
-        convert_image_from_pack(filename, db_type, meta, f)
+        convert_image_from_pack(filename, db_type, meta, f, n_sample)
     f.close()
     print "Done for " + db_type
 
@@ -70,8 +76,8 @@ def main():
     make_dir(meta, "train")
     make_dir(meta, "test")
 
-    convert_DB(meta, "train")
-    convert_DB(meta, "test")
+    convert_DB(meta, "train", 1000)
+    convert_DB(meta, "test", 0)
 
 
 if __name__ == '__main__':
